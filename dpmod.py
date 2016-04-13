@@ -2,6 +2,44 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 
+def hello(E, u='eV'):
+    if u=='eV':
+        return E 
+    else:
+        return 'blergy'
+
+def unit(E, u='eV'):
+    h=6.63e-34
+    e=1.602e-19
+    c=3e8
+    if u=='eV':
+        return E
+    elif u=='nm':
+        x = (h*c)/(E*e*1e-9)
+        return x
+    elif u=='micron':
+        x = (h*c)/(E*e*1e-6)
+        return x
+
+def plot(osc, units='eV'):
+
+    fig = plt.figure(figsize=(9,7))
+    ax1 = fig.add_subplot(111)
+    ax2 = ax1.twinx()
+
+    x = unit(osc.E, u=units)
+    e = osc.func()
+
+    e1, = ax1.plot(x, np.real(e), color='red', label='$e_{1}$')
+    e2, = ax2.plot(x, -np.imag(e), color='blue', label='$e_{2}$')
+
+    ax1.set_xlim(min(x), max(x))
+    ax1.set_ylim(min(np.real(e)), max(np.real(e)))
+    ax2.set_ylim(min(-np.imag(e)), max(-np.imag(e)))
+
+    
+    plt.show
+
 class Lorentz:
     
     def __init__(self, E=np.linspace(5, 15, 100), A=10, E0=11, G = 1):
@@ -31,13 +69,9 @@ class Lorentz:
         
         return np.array(e1) - np.array(e2)*1j
 
-    def plot(self):
-        E = self.E
-
-        e = self.func()
-        l1, = plt.plot(E, np.real(e))
-        l2, = plt.plot(E, -np.imag(e))
-        plt.show()
+    def plot(self, units='eV'):
+        plot(self, units='eV')
+        
 
     def table(self):
         table = []
