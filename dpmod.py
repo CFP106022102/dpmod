@@ -2,41 +2,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Lorentz:
+    """Lorentz Oscillator Class"""
     
-    def __init__(self, A=22, E0=32, G = 1):
-        self.E = np.linspace(E0-5, E0+4, 100)
-        self.A = A
-        self.E0 = E0
-        self.G = G
+    def __init__(self, A=22, E0=10, G = 0.1):
+        self.E = np.linspace(E0-5, E0+20, 100)
+        self.A = A #Amplitude [dimentionless]
+        self.E0 = E0 #Resonant Energy [eV]
+        self.G = G #Damping [eV]
 
-        self.param = {'Amp.': self.A,
-                       'E0 (eV)': self.E0,
-                       'Gamma (eV^-1)': self.G}
-        return None
-
-    def p(self):
-        p = self.param.values()
-        return p
+        self.param = {'A' : {'value': self.A, 
+                             'units': 'eV$^{2}$', 
+                             'label': 'Oscillator Amplitude'},
+                      'E0': {'value': self.E0, 
+                             'units': 'eV', 
+                             'label': 'Resonant Energy'},
+                      'G' : {'value': self.G, 
+                             'units': 'eV', 
+                             'label': 'Damping constant'}
+                      }
 
     def func(self):
+        """
+        Calculate real and imaginary parts of dielectic permittivity
+        Return as complex function
+        """
         E = self.E
 
-        p = self.p()
-        A = p[0]
-        E0 = p[1]
-        G = p[2]
+        A = self.param['A'].get('value', None)
+        E0 = self.param['E0'].get('value', None)
+        G = self.param['G'].get('value', None)
 
-        e1 = []
+        dp = [] #Define list for holding complex permittivity
         
-        for l in E:
-            e1.append(1 + ((E0**2-l**2)/((E0**2-l**2)**2+(G*l)**2)))
+
+        for x in E:
+            real = 1 + A*((E0**2-x**2)/((E0**2-x**2)**2+(G*x)**2))
+            imag = A*((G*x)/((E0**2-x**2)**2 + (G*x)**2))
+            dp.append(np.complex(real, imag))
         
-        return e1
+        return dp
 
     def plot(self):
         E = self.E
-
-        l1, = plt.plot(E, self.func())
+        dp = self.func()
+        l1, = plt.plot(E, np.real(dp))
+        l2, = plt.plot(E, np.imag(dp))
         plt.show()
 
         
